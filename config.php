@@ -2,7 +2,14 @@
 
 class RatingPluginConfig extends PluginConfig {
     function getOptions() {
-        return array();
+        return array(
+            'result_url' => new TextboxField(array(
+                'label' => __('Result Page'),
+                'required' => true,
+                'configuration' => array('size'=>40),
+                'hint' => __('URL for the internal result page'),
+            )),
+        );
     }
 
 

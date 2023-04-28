@@ -1,20 +1,27 @@
 <?php
 
-date_default_timezone_set('Europe/Rome'); 
 $row = 0;
 $start; 
 $end; 
 
-$operator;
-$category;
+$username;
+$topic;
 
-$sql = 'SELECT * FROM `ost_ratings` ORDER BY timestamp DESC';
+$join = "OST_R 
+        JOIN `ost_user` OST_U ON OST_R.user_id = OST_U.id
+        JOIN `ost_staff` OST_S ON OST_R.staff_id = OST_S.staff_id
+        JOIN `ost_help_topic` OST_HT ON OST_R.topic_id = OST_HT.topic_id";
+
+$sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY timestamp DESC';
 
 $res = db_query($sql);
 $items = db_assoc_array($res);
 
+//echo($sql);
 
 if (isset($_GET["export"])) {
+    $first = true;
+
     if (trim($_GET["start"]) != "")
         $start = date("Y-m-d H:i:s", strtotime($_GET["start"]));
 
@@ -22,19 +29,34 @@ if (isset($_GET["export"])) {
         $end = date("Y-m-d H:i:s", strtotime($_GET["end"]));
 
 
+    $sql = 'SELECT * FROM `ost_ratings` '.$join.' WHERE ';
 
     if ($start != null && $end != null) {
-        $sql = "SELECT * FROM `ost_ratings` WHERE timestamp >= '" . $start . "' AND  timestamp <= '" . $end . "' ";
-        if (trim($_GET["operator"]) != "")
-            $sql = $sql . " AND operatore LIKE '%" . $_GET["operator"] . "%'";
-        if (trim($_GET["category"]) != "")
-            $sql = $sql . " AND categoria LIKE '%" . $_GET["category"] . "%'";
-
-        $sql = $sql . " ORDER BY timestamp DESC";
-    } else
-        $sql = 'SELECT * FROM `ost_ratings` ORDER BY timestamp DESC';
-
-
+        $sql = $sql . "timestamp >= '" . $start . "' AND  timestamp <= '" . $end . "' ";
+          $first = false;
+    }
+    
+    if (trim($_GET["username"]) != ""){
+        if($first)
+            $sql = $sql . "username LIKE '%" . $_GET["username"] . "%'";
+        else
+            $sql = $sql . " AND username LIKE '%" . $_GET["username"] . "%'";
+        $first = false;
+    }
+    
+    if (trim($_GET["topic"]) != ""){
+        if($first)
+            $sql = $sql . "topic LIKE '%" . $_GET["topic"] . "%'";
+        else
+            $sql = $sql . "AND topic LIKE '%" . $_GET["topic"] . "%'";
+        $first = false;
+    }
+      
+    
+    $sql = $sql . " ORDER BY timestamp DESC";
+    
+    if(trim($_GET["username"]) == "" && trim($_GET["topic"]) == "" && $start == null && $end == null)
+        $sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY timestamp DESC';
 
 
     $res = db_query($sql);
@@ -50,13 +72,13 @@ if (isset($_GET["export"])) {
     if (!empty($items)) {
         foreach ($items as $item) {
             if (!$heading) {
-                echo "Informazioni cronologiche\tTicket\tOperatore\tCategoria\tRating\tSessione" . "\n";
+                echo "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP" . "\n";
                 $heading = true;
             }
-            echo date("d/m/Y H:i:s", strtotime($item['timestamp'])) . "\t" . $item["ticket"] . "\t" . $item["operatore"] . "\t" . $item["categoria"] . "\t" . $item["rating"] . "\t" . $item["session_id"] . "\n";
+            echo date("d/m/Y H:i:s", strtotime($item['timestamp'])) . "\t" . $item["number"] . "\t" . $item["topic"] . "\t" . $item["username"] . "\t" . $item["rating"] ."\t". $item["name"] . "\t" . $item["user_ip"] . "\n";
         }
     } else {
-        echo "Informazioni cronologiche\tTicket\tOperatore\tCategoria\tRating\tSessione" . "\n";
+        echo "Informazioni cronologiche\tTicket\tOperatore\Topic\tRating\tSessione" . "\n";
     }
     exit();
 }
@@ -66,43 +88,42 @@ if (isset($_GET["filter"])) {
         $start = date("Y-m-d H:i:s", strtotime($_GET["start"]));
     if (isset($_GET["end"]) && $_GET["end"] != "")
         $end = date("Y-m-d H:i:s", strtotime($_GET["end"]));
-    $operator = $_GET["operator"];
-    $category = $_GET["category"];
+    $username = $_GET["username"];
+    $topic = $_GET["topic"];
 
 
     $first = true;
 
-    $sql = "SELECT * FROM `ost_ratings` WHERE ";
+    $sql = 'SELECT * FROM `ost_ratings` '.$join.' WHERE ';
+
     if ($start != null && $end != null) {
         $sql = $sql . "timestamp >= '" . $start . "' AND  timestamp <= '" . $end . "' ";
         $first = false;
     }
 
-    if (trim($_GET["operator"]) != ""){
+    if (trim($_GET["username"]) != ""){
         if($first)
-            $sql = $sql . "operatore LIKE '%" . $_GET["operator"] . "%'";
+            $sql = $sql . "username LIKE '%" . $_GET["username"] . "%'";
         else
-             $sql = $sql . " AND operatore LIKE '%" . $_GET["operator"] . "%'";
+             $sql = $sql . " AND username LIKE '%" . $_GET["username"] . "%'";
         $first = false;
     }
 
-    if (trim($_GET["category"]) != ""){
+    if (trim($_GET["topic"]) != ""){
         if($first)
-            $sql = $sql . "categoria LIKE '%" . $_GET["category"] . "%'";
+            $sql = $sql . "topic LIKE '%" . $_GET["topic"] . "%'";
         else
-            $sql = $sql . "AND categoria LIKE '%" . $_GET["category"] . "%'";
+            $sql = $sql . "AND topic LIKE '%" . $_GET["topic"] . "%'";
         $first = false;
     }
   
 
     $sql = $sql . " ORDER BY timestamp DESC";
 
-    if(trim($_GET["operator"]) == "" && trim($_GET["category"]) == "" && $start == null && $end == null)
-        $sql = 'SELECT * FROM `ost_ratings` ORDER BY timestamp DESC';
+    if(trim($_GET["username"]) == "" && trim($_GET["topic"]) == "" && $start == null && $end == null)
+        $sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY timestamp DESC';
 
 
-
-    echo($sql);
 
 
     $res = db_query($sql);
@@ -112,11 +133,11 @@ if (isset($_GET["filter"])) {
 if (isset($_GET["sort"])) {
 
     if ($_GET["dir"] == 0)
-        $sql = 'SELECT * FROM `ost_ratings` ORDER BY ' . $_GET["sort"] . ' DESC';
+        $sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY ' . $_GET["sort"] . ' DESC';
     else if ($_GET["dir"] == 1)
-        $sql = 'SELECT * FROM `ost_ratings` ORDER BY ' . $_GET["sort"] . ' ASC';
+        $sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY ' . $_GET["sort"] . ' ASC';
     else
-        $sql = 'SELECT * FROM `ost_ratings` ORDER BY timestamp DESC';
+        $sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY timestamp DESC';
 
 
     $res = db_query($sql);

@@ -1,5 +1,5 @@
 <?php
-//http://localhost:8888/include/plugins/rating/insertPage/resultpage.php?rating=1&ticket=2334&operatore=Utente-Test&categoria=categoria%20di%20test
+//http://localhost:8888/include/plugins/rating/insertPage/resultpage.php?rating=3&ticket=2&number=112501&staff_id=1&topic_id=2
 include("resultpagecontroller.php");
 
 ?>
@@ -28,10 +28,7 @@ include("resultpagecontroller.php");
                     <?php   
                     }else { ?>
                         <h2 style="color: red">Operation not allowed</h2>
-                    <?php } ?>
-
-                <button onclick="window.location.href='https:\/\/aftersales.osai-as.com\/'">Go back</button>   <!-- Redirect alla pagina giusta --> 
-        
+                    <?php } ?>        
        </div>
 
 </body>

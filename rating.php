@@ -31,6 +31,8 @@ class RatingPlugin extends Plugin
 
     var $config_class = 'RatingPluginConfig';
 
+    static $result_url;
+
     public static function autoload($className) {
         $className = ltrim ( $className, '\\' );
         $fileName = '';
@@ -50,6 +52,9 @@ class RatingPlugin extends Plugin
 
     function bootstrap()
     {
+        $config = $this->getConfig();
+        if ($config->get('result_url'))
+            RatingPlugin::$result_url = $config->get('result_url');
 
         if($this->firstRun()) {
             if(!$this->configureFirstRun()) {
@@ -180,12 +185,15 @@ function configureFirstRun() {
 function createDBTables()
 {
     $query = "CREATE TABLE `ost_ratings` (
+            `rating_id` int(11) PRIMARY KEY AUTO_INCREMENT,
             `rating` int(1) NOT NULL DEFAULT '0',
-            `ticket` int(7) NOT NULL,
-            `operatore` varchar(50) NOT NULL DEFAULT '',
-            `categoria` varchar(50) NOT NULL DEFAULT '',
+            `ticket_id` int(11) UNSIGNED NOT NULL,
+            `topic_id` int(10) UNSIGNED NOT NULL DEFAULT '0',
+            `staff_id` int(10) UNSIGNED NOT NULL DEFAULT '0',
             `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `session_id` varchar(255) CHARACTER SET ascii NOT NULL DEFAULT ''
+            `user_id` varchar(16) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+            `user_ip` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+            `number` varchar(20) DEFAULT NULL
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 
     if (!db_query($query))

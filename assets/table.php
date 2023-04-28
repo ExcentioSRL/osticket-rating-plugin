@@ -8,6 +8,7 @@ global $ost;
 global $cfg;
 require('staff.inc.php');
 
+
 $nav = new \StaffNav($thisstaff);
 
 $nav->setTabActive('apps', (INVENTORY_WEB_ROOT . 'settings/forms'));
@@ -44,33 +45,39 @@ require(STAFFINC_DIR . 'header.inc.php');
                                 <label for="start">Start date:</label>
                                 <input type="datetime-local" id="start" name="start" value="<?php echo $start; ?>">
                             </div>
+
                             <div>&nbsp;</div>
                             <div>&nbsp;</div>
+
                             <div>
                                 <label for="end">End date:</label>
                                 <input type="datetime-local" id="end" name="end" value="<?php echo $end; ?>">
                             </div>
 
-                        </div>
-                        <div style="display:flex; flex-direction: column; justify-content: space-between; width:100%;">
-                            </br>
+                            <div>&nbsp;</div>
+                            <div>&nbsp;</div>
+
                             <div>
-                                <label for="operator">Operator:</label>
-                                <input type="text" id="operator" name="operator" value="<?php echo $operator; ?>">
+                                <label for="username">Operator:</label>
+                                <input type="text" id="username" name="username" value="<?php echo $username; ?>">
                             </div>
-                            </br>
-                            <div>
-                                <label for="category">Category:</label>
-                                <input type="text" id="category" name="category" value="<?php echo $category; ?>">
+
+                            <div>&nbsp;</div>
+                            <div>&nbsp;</div>
+                            
+                            <div >
+                                <label for="topic">Topic:</label>
+                                <input type="text" id="topic" name="topic" value="<?php echo $topic; ?>">
                             </div>
                         </div>
                     </div>
-                    </br>
-                    <div>
+                   
+                    <div style="display:flex; flex-direction: row; justify-content: center; width:100%; margin-top:3rem;">
+
                         <a href="?"><button class="red button action-button" id="clear" name="clear" value="Clear" class="attached button">Clear filter</button></a>
- 
                         <button class="red button action-button muted" type="submit" id="filter" name="filter" value="Filter" class="attached button"><i class="fa fa-filter" aria-hidden="true"></i> Filter</button>
                         <button class="green button action-button muted" type="submit" id="export" name="export" value="Export to excel" class="attached button"><i class="fa fa-file-excel-o" style="font-size:15px;color:darkgreen"></i> Export to excel</button>
+                    
                     </div>
                     
                 </form>
@@ -87,12 +94,13 @@ require(STAFFINC_DIR . 'header.inc.php');
             <thead>
                 <tr>
                     <th style="width:12px"></th>
-                    <th><a class=<?php echo "'" . getClass("timestamp") . "'"; ?> href="?sort=timestamp&dir=<?php echo getSort("timestamp") ?>"> <strong>Informazioni cronologiche</strong> </a></th>
-                    <th><a class=<?php echo "'" . getClass("ticket") . "'"; ?> href="?sort=ticket&dir=<?php echo getSort("ticket") ?>"> <strong>Ticket</strong></a></th>
-                    <th><a class=<?php echo "'" . getClass("operatore") . "'"; ?> href="?sort=operatore&dir=<?php echo getSort("operatore") ?>"> <strong>Operatore</strong></a></th>
-                    <th><a class=<?php echo "'" . getClass("categoria") . "'"; ?> href="?sort=categoria&dir=<?php echo getSort("categoria") ?>"> <strong>Categoria</strong></a></th>
+                    <th><a class=<?php echo "'" . getClass("timestamp") . "'"; ?> href="?sort=timestamp&dir=<?php echo getSort("timestamp") ?>"> <strong>Date</strong> </a></th>
+                    <th><a class=<?php echo "'" . getClass("number") . "'"; ?> href="?sort=number&dir=<?php echo getSort("number") ?>"> <strong>Ticket</strong></a></th>
+                    <th><a class=<?php echo "'" . getClass("topic") . "'"; ?> href="?sort=topic&dir=<?php echo getSort("topic") ?>"> <strong>Topic</strong></a></th>
+                    <th><a class=<?php echo "'" . getClass("username") . "'"; ?> href="?sort=username&dir=<?php echo getSort("username") ?>"> <strong>Operator</strong></a></th>
                     <th><a class=<?php echo "'" . getClass("rating") . "'"; ?> href="?sort=rating&dir=<?php echo getSort("rating") ?>"> <strong>Rating</strong></a></th>
-                    <th><a class=<?php echo "'" . getClass("session_id") . "'"; ?> href="?sort=session_id&dir=<?php echo getSort("session_id") ?>"> <strong>Sessione</strong></a></th>
+                    <th><a class=<?php echo "'" . getClass("user_id") . "'"; ?> href="?sort=user_id&dir=<?php echo getSort("user_id") ?>"> <strong>User</strong></a></th>
+                    <th><a class=<?php echo "'" . getClass("user_ip") . "'"; ?> href="?sort=user_ip&dir=<?php echo getSort("user_ip") ?>"> <strong>User IP</strong></a></th>
                 </tr>
             </thead>
             <tbody>
@@ -102,11 +110,12 @@ require(STAFFINC_DIR . 'header.inc.php');
                     <tr>
                         <td><strong><?php echo $index; ?></strong></td>
                         <td><strong><?php echo date("d/m/Y H:i:s", strtotime($item['timestamp'])); ?></strong></td>
-                        <td><?php echo $item['ticket']; ?></td>
-                        <td><?php echo $item['operatore']; ?></td>
-                        <td><?php echo $item['categoria']; ?></td>
+                        <td><?php echo $item['number']; ?></td>
+                        <td><?php echo $item['topic']; ?></td>
+                        <td><?php echo $item['username'];?></td>
                         <td><?php echo $item['rating']; ?></td>
-                        <td><?php echo $item['session_id']; ?></td>
+                        <td><?php echo $item['name']; ?></td>
+                        <td><?php echo $item['user_ip']; ?></td>
                     </tr>
                 <?php
                     $index++;
