@@ -11,7 +11,7 @@ require('staff.inc.php');
 
 $nav = new \StaffNav($thisstaff);
 
-$nav->setTabActive('apps', (INVENTORY_WEB_ROOT . 'settings/forms'));
+$nav->setTabActive('apps', (RATINGS_WEB_ROOT . 'settings/forms'));
 require(STAFFINC_DIR . 'header.inc.php');
 
 

@@ -11,13 +11,20 @@ require_once INCLUDE_DIR . 'class.ajax.php';
 require_once('config.php');
 require_once INCLUDE_DIR . 'class.signal.php';
 
+require_once(INCLUDE_DIR.'class.app.php');
+require_once(INCLUDE_DIR.'class.dispatcher.php');
+require_once(INCLUDE_DIR.'class.osticket.php');
+require_once(INCLUDE_DIR.'class.import.php');
+
+
+
 
 define ( 'OST_WEB_ROOT', osTicket::get_root_path ( __DIR__ ) );
 const RATINGS_WEB_ROOT = OST_WEB_ROOT . 'scp/dispatcher.php/rating/';
 const RATING_PLUGIN_ROOT = __DIR__ . '/';
 const RATING_ASSET_DIR = RATING_PLUGIN_ROOT. 'assets/';
 const RATING_TABLE = TABLE_PREFIX . 'ost_ratings';
-const RATING_MODEL_DIR = INVENTORY_INCLUDE_DIR . 'model/';
+const RATING_MODEL_DIR = RATING_PLUGIN_ROOT . 'model/';
 
 spl_autoload_register(array(
     'RatingPlugin',

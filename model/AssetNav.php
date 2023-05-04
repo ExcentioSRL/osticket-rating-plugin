@@ -31,9 +31,9 @@ class AssetSettingsNav extends \StaffNav {
                     }
                     break;
                 case 'apps':
-                    $subnav[] = array('desc' => __('Inventory Manager'), 'href' => INVENTORY_WEB_ROOT.'asset/handleAsset');
-                    $subnav[] = array('desc' => __('Forms'), 'href' => INVENTORY_WEB_ROOT.'settings/forms', 'iconclass'=>'forms');
-                    $subnav[] = array('desc' => __('API'), 'href' => INVENTORY_WEB_ROOT.'settings/api', 'iconclass'=>'api');
+                    $subnav[] = array('desc' => __('Rating'), 'href' => RATINGS_WEB_ROOT.'asset/handleAsset');
+                    $subnav[] = array('desc' => __('Forms'), 'href' => RATINGS_WEB_ROOT.'settings/forms', 'iconclass'=>'forms');
+                    $subnav[] = array('desc' => __('API'), 'href' => RATINGS_WEB_ROOT.'settings/api', 'iconclass'=>'api');
                     break;
             }
             if($subnav)
