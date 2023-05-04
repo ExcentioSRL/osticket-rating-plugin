@@ -78,7 +78,7 @@ if (isset($_GET["export"])) {
             echo date("d/m/Y H:i:s", strtotime($item['timestamp'])) . "\t" . $item["number"] . "\t" . $item["topic"] . "\t" . $item["username"] . "\t" . $item["rating"] ."\t". $item["name"] . "\t" . $item["user_ip"] . "\n";
         }
     } else {
-        echo "Informazioni cronologiche\tTicket\tOperatore\Topic\tRating\tSessione" . "\n";
+        echo "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP" . "\n";
     }
     exit();
 }
