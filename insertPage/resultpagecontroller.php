@@ -6,7 +6,6 @@
     require_once(INCLUDE_DIR.'class.canned.php');
     require_once(INCLUDE_DIR.'class.json.php');
     require_once(INCLUDE_DIR.'class.dynamic_forms.php');
-    require_once(INCLUDE_DIR.'class.rating.php');
 
     $resultPage = RatingPlugin::$result_url;
     
@@ -22,6 +21,7 @@
 
     $success = false;
 
+    
     if(!isset($_COOKIE[$cookie_name])) {
         echo "Cookie named '" . $cookie_name . "' is not set!";
     } else {
@@ -64,7 +64,7 @@
 
     if( count($infoRes) != 0 ){
 
-        $user_id = $infoRes[0]['user_id'];
+        $user_id = $_SESSION["_auth"]["user"]["id"];
         $user_ip = $infoRes[0]['user_ip'];
 
         $checkSql = "SELECT * FROM `ost_ratings` WHERE ticket_id = ".$ticket." AND user_id= '".$user_id."'";

@@ -8,7 +8,6 @@ global $ost;
 global $cfg;
 require('staff.inc.php');
 
-
 $nav = new \StaffNav($thisstaff);
 
 $nav->setTabActive('apps', (RATINGS_WEB_ROOT . 'settings/forms'));
@@ -76,7 +75,7 @@ require(STAFFINC_DIR . 'header.inc.php');
 
                         <a href="?"><button class="red button action-button" id="clear" name="clear" value="Clear" class="attached button">Clear filter</button></a>
                         <button class="red button action-button muted" type="submit" id="filter" name="filter" value="Filter" class="attached button"><i class="fa fa-filter" aria-hidden="true"></i> Filter</button>
-                        <button class="green button action-button muted" type="submit" id="export" name="export" value="Export to excel" class="attached button"><i class="fa fa-file-excel-o" style="font-size:15px;color:darkgreen"></i> Export to excel</button>
+                        <button class="green button action-button muted" type="submit" id="export" name="export" value="Export to csv" class="attached button"> Export to csv</button>
                     
                     </div>
                     

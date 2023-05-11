@@ -17,7 +17,6 @@ $sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY timestamp DESC';
 $res = db_query($sql);
 $items = db_assoc_array($res);
 
-//echo($sql);
 
 if (isset($_GET["export"])) {
     $first = true;
@@ -62,7 +61,7 @@ if (isset($_GET["export"])) {
     $res = db_query($sql);
     $items = db_assoc_array($res);
 
-    $fileName = "Ticket_ratings_" . date('d-m-Y') . ".xls";
+    $fileName = "Ticket_ratings_" . date('d-m-Y') . ".csv";
 
     header('Content-Type: application/vnd.ms-excel');
     header('Content-Disposition: attachment; filename=' . $fileName);
