@@ -8,7 +8,10 @@
     require_once(INCLUDE_DIR.'class.dynamic_forms.php');
 
     $resultPage = RatingPlugin::$result_url;
-    
+    $errorStaffPage = RatingPlugin::$error_staff_url;
+    $errorNoUserPage = RatingPlugin::$error_no_user_url;
+    $genericErrorPage= RatingPlugin::$generic_error_url;
+
     $cookie_name = "OSTSESSID";
     $rating; 
     $ticket; 
@@ -55,8 +58,21 @@
 
     if(isset($_COOKIE[$cookie_name])) 
         $session_id =  $_COOKIE[$cookie_name];
-    else
-        die("Error. Operation not allowed");   
+    
+        
+    $user_id = $_SESSION["_auth"]["user"]["id"];
+    $auth_staff_id = $_SESSION["_auth"]["staff"]["id"];
+
+
+    if ($auth_staff_id != null){
+        header("Location: ".$errorStaffPage);
+        exit();
+    }
+
+    if($user_id == null){
+        header("Location: ".$errorNoUserPage);
+        exit();
+    }
 
     $getUserInfoSql = "SELECT * FROM `ost_session` WHERE session_id ='".$session_id."'";
     $info = db_query($getUserInfoSql);
@@ -64,7 +80,6 @@
 
     if( count($infoRes) != 0 ){
 
-        $user_id = $_SESSION["_auth"]["user"]["id"];
         $user_ip = $infoRes[0]['user_ip'];
 
         $checkSql = "SELECT * FROM `ost_ratings` WHERE ticket_id = ".$ticket." AND user_id= '".$user_id."'";
@@ -72,6 +87,7 @@
 
         $count = count(db_assoc_array($res));
        
+    
         if( $count == 0 ){
             $sql = "INSERT INTO `ost_ratings`(`rating`, `ticket_id`, `staff_id`, `user_ip`, `user_id`, `topic_id`, `number`) VALUES (".$rating.",".$ticket.",".$staff_id.",'".$user_ip."','".$user_id."',".$topic_id.",'".$number."')";
                 echo($sql);
@@ -81,9 +97,20 @@
                         header("Location: ".$resultPage);
                         exit();
                     }
-                else
-                    echo "Error!";   
+                else{
+                    header("Location: ".$genericErrorPage);
+                    exit();
+                }
+                    
         }
+        else{
+            header("Location: ".$genericErrorPage);
+            exit();
+        }
+    }
+    else{
+        header("Location: ".$genericErrorPage);
+        exit();
     }
 
     

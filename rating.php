@@ -39,6 +39,9 @@ class RatingPlugin extends Plugin
     var $config_class = 'RatingPluginConfig';
 
     static $result_url;
+    static $error_staff_url;
+    static $error_no_user_url;
+    static $generic_error_url;
 
     public static function autoload($className) {
         $className = ltrim ( $className, '\\' );
@@ -62,6 +65,13 @@ class RatingPlugin extends Plugin
         $config = $this->getConfig();
         if ($config->get('result_url'))
             RatingPlugin::$result_url = $config->get('result_url');
+        if ($config->get('error_staff_url'))
+            RatingPlugin::$error_staff_url = $config->get('error_staff_url');
+        if ($config->get('error_no_user_url'))
+            RatingPlugin::$error_no_user_url = $config->get('error_no_user_url');
+            if ($config->get('generic_error_url'))
+            RatingPlugin::$generic_error_url = $config->get('generic_error_url');
+        
 
         if($this->firstRun()) {
             if(!$this->configureFirstRun()) {
