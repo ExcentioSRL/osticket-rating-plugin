@@ -1,12 +1,12 @@
 <?php
 
 $row = 0;
-$start; 
-$end; 
+$start;
+$end;
 
 $username;
 $topic;
-$type = $_GET["type"]? $_GET["type"] : "w-rating";
+$type = $_GET["type"] ? $_GET["type"] : "w-rating";
 
 $join = "OST_R 
         JOIN `ost_user` OST_U ON OST_R.user_id = OST_U.id
@@ -32,14 +32,14 @@ $allSql = "
     ";
 
 
-$sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY timestamp DESC';
+$sql = 'SELECT * FROM `ost_ratings` ' . $join . ' ORDER BY timestamp DESC';
 
 $res = db_query($sql);
 $items = db_assoc_array($res);
 //print_r($items);
 
 if (isset($_GET["export"])) {
-    
+
     $sql = createQuery($start, $end, $noRatingSql, $allSql, $join);
 
     $res = db_query($sql);
@@ -55,13 +55,13 @@ if (isset($_GET["export"])) {
     if (!empty($items)) {
         foreach ($items as $item) {
             if (!$heading) {
-                echo "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP" . "\n";
+                echo "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP\tCustomer Experience" . "\n";
                 $heading = true;
             }
-            echo ($item['timestamp'] != "" ? date("d/m/Y H:i:s", strtotime($item['timestamp'])) : "-" ). "\t" . $item["number"] . "\t" . $item["topic"] . "\t" . $item["username"] . "\t" . $item["rating"] ."\t". $item["name"] . "\t" . $item["user_ip"] . "\n";
+            echo ($item['timestamp'] != "" ? date("d/m/Y H:i:s", strtotime($item['timestamp'])) : "-") . "\t" . $item["number"] . "\t" . $item["topic"] . "\t" . $item["username"] . "\t" . $item["rating"] . "\t" . $item["name"] . "\t" . $item["user_ip"] . "\t" . $item["c_experience"] . "\n";
         }
     } else {
-        echo "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP" . "\n";
+        echo "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP\tCustomer Experience" . "\n";
     }
     exit();
 }
@@ -83,29 +83,28 @@ if (isset($_GET["filter"])) {
 if (isset($_GET["sort"])) {
 
     $sort = $_GET["sort"];
-    if($sort == "number")
+    if ($sort == "number")
         $sort = "OST_TT.number";
-    else if($sort == "user_id")
+    else if ($sort == "user_id")
         $sort = "OST_TT.user_id";
 
-    if($_GET["type"] == "w-rating")
-        $sql = 'SELECT * FROM `ost_ratings` '.$join;
-    else if($_GET["type"] == "wo-rating")
+    if ($_GET["type"] == "w-rating")
+        $sql = 'SELECT * FROM `ost_ratings` ' . $join;
+    else if ($_GET["type"] == "wo-rating")
         $sql = $noRatingSql;
-    else if($_GET["type"] == "all")
+    else if ($_GET["type"] == "all")
         $sql = $allSql;
-    
-    if ($_GET["dir"] == 0)
-        $sql = $sql.' ORDER BY ' . $sort . ' DESC';
-    else if ($_GET["dir"] == 1)
-        $sql = $sql.' ORDER BY ' . $sort . ' ASC';
-    else
-        $sql = $sql.' ORDER BY timestamp DESC';
 
-    
+    if ($_GET["dir"] == 0)
+        $sql = $sql . ' ORDER BY ' . $sort . ' DESC';
+    else if ($_GET["dir"] == 1)
+        $sql = $sql . ' ORDER BY ' . $sort . ' ASC';
+    else
+        $sql = $sql . ' ORDER BY timestamp DESC';
+
+
     $res = db_query($sql);
     $items = db_assoc_array($res);
-   
 }
 
 
@@ -139,51 +138,50 @@ function getSort($sort)
 }
 
 
-function createQuery($start, $end, $noRatingSql, $allSql, $join){
+function createQuery($start, $end, $noRatingSql, $allSql, $join)
+{
     $first = true;
-    
-    if(trim($_GET["username"]) == "" && trim($_GET["topic"]) == "" && $start == null && $end == null){
-        if($_GET["type"] == "w-rating")
-            $sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY timestamp DESC';
-        else if($_GET["type"] == "wo-rating")
-            $sql = $noRatingSql;
-        else if($_GET["type"] == "all")
-            $sql = $allSql;
-    }
-    else{
 
-        if($_GET["type"] == "wo-rating")
-            $sql = $noRatingSql. " AND ";
-        else if($_GET["type"] == "w-rating")
-            $sql = 'SELECT * FROM `ost_ratings` '.$join.' WHERE ';
-        else if($_GET["type"] == "all")
-            $sql = $allSql." WHERE ";
+    if (trim($_GET["username"]) == "" && trim($_GET["topic"]) == "" && $start == null && $end == null) {
+        if ($_GET["type"] == "w-rating")
+            $sql = 'SELECT * FROM `ost_ratings` ' . $join . ' ORDER BY timestamp DESC';
+        else if ($_GET["type"] == "wo-rating")
+            $sql = $noRatingSql;
+        else if ($_GET["type"] == "all")
+            $sql = $allSql;
+    } else {
+
+        if ($_GET["type"] == "wo-rating")
+            $sql = $noRatingSql . " AND ";
+        else if ($_GET["type"] == "w-rating")
+            $sql = 'SELECT * FROM `ost_ratings` ' . $join . ' WHERE ';
+        else if ($_GET["type"] == "all")
+            $sql = $allSql . " WHERE ";
 
         if ($start != null && $end != null) {
             $sql = $sql . "timestamp >= '" . $start . "' AND  timestamp <= '" . $end . "' ";
             $first = false;
         }
 
-        if (trim($_GET["username"]) != ""){
-            if($first)
+        if (trim($_GET["username"]) != "") {
+            if ($first)
                 $sql = $sql . "username LIKE '%" . $_GET["username"] . "%'";
             else
                 $sql = $sql . " AND username LIKE '%" . $_GET["username"] . "%'";
             $first = false;
         }
 
-        if (trim($_GET["topic"]) != ""){
-            if($first)
+        if (trim($_GET["topic"]) != "") {
+            if ($first)
                 $sql = $sql . "topic LIKE '%" . $_GET["topic"] . "%'";
             else
                 $sql = $sql . "AND topic LIKE '%" . $_GET["topic"] . "%'";
             $first = false;
         }
-    
+
 
 
         $sql = $sql . " ORDER BY timestamp DESC";
     }
     return $sql;
-
 }

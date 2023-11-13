@@ -11,18 +11,18 @@ require_once INCLUDE_DIR . 'class.ajax.php';
 require_once('config.php');
 require_once INCLUDE_DIR . 'class.signal.php';
 
-require_once(INCLUDE_DIR.'class.app.php');
-require_once(INCLUDE_DIR.'class.dispatcher.php');
-require_once(INCLUDE_DIR.'class.osticket.php');
-require_once(INCLUDE_DIR.'class.import.php');
+require_once(INCLUDE_DIR . 'class.app.php');
+require_once(INCLUDE_DIR . 'class.dispatcher.php');
+require_once(INCLUDE_DIR . 'class.osticket.php');
+require_once(INCLUDE_DIR . 'class.import.php');
 
 
 
 
-define ( 'OST_WEB_ROOT', osTicket::get_root_path ( __DIR__ ) );
+define('OST_WEB_ROOT', osTicket::get_root_path(__DIR__));
 const RATINGS_WEB_ROOT = OST_WEB_ROOT . 'scp/dispatcher.php/rating/';
 const RATING_PLUGIN_ROOT = __DIR__ . '/';
-const RATING_ASSET_DIR = RATING_PLUGIN_ROOT. 'assets/';
+const RATING_ASSET_DIR = RATING_PLUGIN_ROOT . 'assets/';
 const RATING_TABLE = TABLE_PREFIX . 'ost_ratings';
 const RATING_MODEL_DIR = RATING_PLUGIN_ROOT . 'model/';
 
@@ -43,21 +43,22 @@ class RatingPlugin extends Plugin
     static $error_no_user_url;
     static $generic_error_url;
 
-    public static function autoload($className) {
-        $className = ltrim ( $className, '\\' );
+
+    public static function autoload($className)
+    {
+        $className = ltrim($className, '\\');
         $fileName = '';
         $namespace = '';
-        if ($lastNsPos = strrpos ( $className, '\\' )) {
-            $namespace = substr ( $className, 0, $lastNsPos );
-            $className = substr ( $className, $lastNsPos + 1 );
-            $fileName = str_replace ( '\\', DIRECTORY_SEPARATOR, $namespace ) . DIRECTORY_SEPARATOR;
+        if ($lastNsPos = strrpos($className, '\\')) {
+            $namespace = substr($className, 0, $lastNsPos);
+            $className = substr($className, $lastNsPos + 1);
+            $fileName = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
         }
-        $fileName .= str_replace ( '_', DIRECTORY_SEPARATOR, $className ) . '.php';
+        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
         $fileName = 'include/' . $fileName;
-        if (file_exists ( RATING_PLUGIN_ROOT . $fileName )) {
+        if (file_exists(RATING_PLUGIN_ROOT . $fileName)) {
             require $fileName;
         }
-
     }
 
     function bootstrap()
@@ -69,33 +70,40 @@ class RatingPlugin extends Plugin
             RatingPlugin::$error_staff_url = $config->get('error_staff_url');
         if ($config->get('error_no_user_url'))
             RatingPlugin::$error_no_user_url = $config->get('error_no_user_url');
-            if ($config->get('generic_error_url'))
+        if ($config->get('generic_error_url'))
             RatingPlugin::$generic_error_url = $config->get('generic_error_url');
-        
 
-        if($this->firstRun()) {
-            if(!$this->configureFirstRun()) {
+
+        if ($this->firstRun()) {
+            if (!$this->configureFirstRun()) {
                 return false;
             }
-            createStaffMenu();
+        } else {
+            updateDBTable();
         }
-       
-   
-        Signal::connect( 'apps.scp', array(
+
+        createStaffMenu();
+        Signal::connect('apps.scp', array(
             'RatingPlugin',
             'callbackDispatch'
         ));
     }
 
-    static public function callbackDispatch($object, $data) {
-        $page_url = url ( '^/rating/',
-            patterns ( 'controller\RatingController',
-                url ( '^(?P<url>.*)$', 'defaultAction' ),
+
+
+
+
+    static public function callbackDispatch($object, $data)
+    {
+        $page_url = url(
+            '^/rating/',
+            patterns(
+                'controller\RatingController',
+                url('^(?P<url>.*)$', 'defaultAction'),
             )
         );
 
-        $object->append ($page_url);
-    
+        $object->append($page_url);
     }
 
     function enable()
@@ -129,7 +137,9 @@ class RatingPlugin extends Plugin
      */
     function firstRun()
     {
-        return true;
+        $sql = 'SHOW TABLES LIKE \'ost_ratings\'';
+        $res = db_query($sql);
+        return (db_num_rows($res) == 0);
     }
 
     function needUpgrade()
@@ -146,6 +156,10 @@ class RatingPlugin extends Plugin
      */
     function configureFirstRun()
     {
+        if (!createDBTables()) {
+            echo "First run configuration error. " . "Unable to create database tables!";
+            return false;
+        }
         return true;
     }
 
@@ -180,24 +194,13 @@ class RatingPlugin extends Plugin
 }
 
 
-function createStaffMenu() {
+function createStaffMenu()
+{
     $app = new Application();
-    $app->registerStaffApp('Ratings', RATINGS_WEB_ROOT."table.php");
+    $app->registerStaffApp('Ratings', RATINGS_WEB_ROOT . "table.php");
 }
 
-function firstRun() {
-    $sql = 'SHOW TABLES LIKE \'' . RATING_TABLE . '\'';
-    $res = db_query($sql);
-    return (db_num_rows($res) == 0);
-}
 
-function configureFirstRun() {
-    if(!createDBTables()) {
-        echo "First run configuration error. " . "Unable to create database tables!";
-        return false;
-    }
-    return true;
-}
 
 function createDBTables()
 {
@@ -210,7 +213,8 @@ function createDBTables()
             `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `user_id` varchar(16) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
             `user_ip` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
-            `number` varchar(20) DEFAULT NULL
+            `number` varchar(20) DEFAULT NULL,
+            `c_experience` int(1) NOT NULL DEFAULT '0'
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 
     if (!db_query($query))
@@ -219,6 +223,15 @@ function createDBTables()
         return true;
 }
 
+function updateDBTable()
+{
+    $query = "ALTER TABLE `ost_ratings` ADD `c_experience` int(1) NOT NULL DEFAULT '0'";
+
+    if (!db_query($query))
+        return false;
+    else
+        return true;
+}
 
 
 function initResultFile()
