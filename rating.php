@@ -42,6 +42,7 @@ class RatingPlugin extends Plugin
     static $error_staff_url;
     static $error_no_user_url;
     static $generic_error_url;
+    static $custom_form;
 
 
     public static function autoload($className)
@@ -72,7 +73,8 @@ class RatingPlugin extends Plugin
             RatingPlugin::$error_no_user_url = $config->get('error_no_user_url');
         if ($config->get('generic_error_url'))
             RatingPlugin::$generic_error_url = $config->get('generic_error_url');
-
+        if ($config->get('custom_form'))
+            RatingPlugin::$custom_form = $config->get('custom_form');
 
         if ($this->firstRun()) {
             if (!$this->configureFirstRun()) {
@@ -87,23 +89,65 @@ class RatingPlugin extends Plugin
             'RatingPlugin',
             'callbackDispatch'
         ));
+        Signal::connect('object.created', array(
+            'RatingPlugin',
+            'modifyResponse'
+        ));
     }
 
-
-
-
-
-    static public function callbackDispatch($object, $data)
-    {
-        $page_url = url(
-            '^/rating/',
-            patterns(
-                'controller\RatingController',
-                url('^(?P<url>.*)$', 'defaultAction'),
+    static public function callbackDispatch($object, $data) {
+        $page_url = url ( '^/rating/',
+            patterns ( 'controller\RatingController',
+                url ( '^(?P<url>.*)$', 'defaultAction' ),
             )
         );
 
         $object->append($page_url);
+    }
+
+    static public function modifyResponse($object, $data)
+    {
+
+        if (is_a($object, "Ticket")) {
+            $lastCreated = $object->ht["thread"]->ht["lastresponse"];
+            $threadId = $object->ht["thread"]->ht["id"];
+
+            $ticketId = $object->ht["ticket_id"];
+
+            $staff_id = $object->ht["staff_id"];
+            $topic_id = $object->ht["topic_id"];
+            $number = $object->ht["number"];
+
+
+
+            $lastMsgQuery = "SELECT *
+                FROM `ost_thread_entry` 
+                WHERE `created`=\"" . $lastCreated . "\" AND `thread_id` = " . $threadId;
+
+            $lastMesgRes = db_query($lastMsgQuery);
+            $lastMsg = db_assoc_array($lastMesgRes)[0]["body"];
+
+            if (str_contains($lastMsg, '%{feedback.form}')) {
+
+                $formatForm = str_replace('"', "'", RatingPlugin::$custom_form);
+                $newBody = str_replace('%{feedback.form}', $formatForm, $lastMsg);
+
+                $newBody = str_replace('%{ticket.id}', $ticketId, $newBody);
+                $newBody = str_replace('%{ticket.number}', $number, $newBody);
+                $newBody = str_replace('%{ticket.topic}', $topic_id, $newBody);
+                $newBody = str_replace('%{ticket.staff}', $staff_id, $newBody);
+
+
+
+
+
+                $query = "UPDATE `ost_thread_entry` 
+                SET `body` = \"" . $newBody . "\"
+                WHERE `created`=\"" . $lastCreated . "\" AND `thread_id` = " . $threadId;
+
+                db_query($query);
+            }
+        }
     }
 
     function enable()

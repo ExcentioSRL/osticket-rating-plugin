@@ -77,6 +77,11 @@ require(STAFFINC_DIR . 'header.inc.php');
                         <option value="wo-rating" <?php if ($type == "wo-rating") echo "selected"; ?>>Without rating</option>
                         <option value="all" <?php if ($type == "all") echo "selected"; ?>>All</option>
                     </select>
+                    <select name="type" id="type" style="width: 207px;">
+                        <option value="w-rating" <?php if ($type == "w-rating" || $type == null) echo "selected"; ?>>With rating</option>
+                        <option value="wo-rating" <?php if ($type == "wo-rating") echo "selected"; ?>>Without rating</option>
+                        <option value="all" <?php if ($type == "all") echo "selected"; ?>>All</option>
+                    </select>
                     <div style="display:flex; flex-direction: row; justify-content: center; width:100%; margin-top:3rem;">
 
                         <a href="?"><button class="red button action-button" id="clear" name="clear" value="Clear" class="attached button">Clear filter</button></a>
