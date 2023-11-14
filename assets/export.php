@@ -39,30 +39,45 @@ $items = db_assoc_array($res);
 //print_r($items);
 
 if (isset($_GET["export"])) {
-    
+    if (isset($_GET["start"]) && $_GET["start"] != "")
+        $start = date("Y-m-d H:i:s", strtotime($_GET["start"]));
+    if (isset($_GET["end"]) && $_GET["end"] != "")
+        $end = date("Y-m-d H:i:s", strtotime($_GET["end"]));
+    $username = $_GET["username"];
+    $topic = $_GET["topic"];
+
     $sql = createQuery($start, $end, $noRatingSql, $allSql, $join);
 
     $res = db_query($sql);
     $items = db_assoc_array($res);
 
     $fileName = "Ticket_ratings_" . date('d-m-Y') . ".csv";
-
-    header('Content-Type: application/vnd.ms-excel');
-    header('Content-Disposition: attachment; filename=' . $fileName);
+    $csv = fopen($fileName, "w") or die("Unable to open file!");
 
     $heading = false;
 
     if (!empty($items)) {
         foreach ($items as $item) {
             if (!$heading) {
-                echo "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP" . "\n";
+                fputcsv($csv,explode("\t", "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP" . "\n"));
                 $heading = true;
             }
-            echo ($item['timestamp'] != "" ? date("d/m/Y H:i:s", strtotime($item['timestamp'])) : "-" ). "\t" . $item["number"] . "\t" . $item["topic"] . "\t" . $item["username"] . "\t" . $item["rating"] ."\t". $item["name"] . "\t" . $item["user_ip"] . "\n";
+            $tmpRow = ($item['timestamp'] != "" ? date("d/m/Y H:i:s", strtotime($item['timestamp'])) : "-" ). "\t" . $item["number"] . "\t" . $item["topic"] . "\t" . $item["username"] . "\t" . $item["rating"] ."\t". $item["name"] . "\t" . $item["user_ip"] . "\n";
+            fputcsv($csv, explode("\t", $tmpRow));
         }
     } else {
-        echo "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP" . "\n";
+        fputcsv($csv,explode("\t", "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP" . "\n"));
     }
+    fclose($csv);
+
+    header('Content-Description: File Transfer');
+    header('Content-Disposition: attachment; filename='.basename($fileName));
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . filesize($fileName));
+    header('Content-Type: application/vnd.ms-excel');
+    readfile($fileName);
     exit();
 }
 
