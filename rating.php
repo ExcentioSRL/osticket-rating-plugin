@@ -131,6 +131,8 @@ class RatingPlugin extends Plugin
 
                 $formatForm = str_replace('"', "'", RatingPlugin::$custom_form);
                 $newBody = str_replace('%{feedback.form}', $formatForm, $lastMsg);
+                $newBody = str_replace('display:none', 'display:block', $newBody);
+                $newBody = str_replace('"display :none', 'display:block', $newBody);
 
                 $newBody = str_replace('%{ticket.id}', $ticketId, $newBody);
                 $newBody = str_replace('%{ticket.number}', $number, $newBody);
