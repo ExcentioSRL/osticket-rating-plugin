@@ -26,6 +26,12 @@ class RatingPluginConfig extends PluginConfig {
                 'required' => true,
                 'configuration' => array('size'=>40),
                 'hint' => __('Error URL for generic error'),
+            )),
+            'custom_form' => new ThreadEntryField(array(
+                'label' => __('Form feedback'),
+                'required' => true,
+                'configuration' => array('length'=>10,'html'=>true),
+                'hint' => __('Form URL for add feedback')
             ))
 
         );

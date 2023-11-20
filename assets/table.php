@@ -94,7 +94,7 @@ require(STAFFINC_DIR . 'header.inc.php');
                 <h2><?php echo count($items); ?> results</h2>
             </div>
         <?php } ?>
-        <table id="" class="list queue tickets  dashboard-stats " style="width:100%">
+        <table id="" class="list queue tickets form_table dashboard-stats" style="width:100%">
             <thead>
                 <tr>
                     <th style="width:12px"></th>
