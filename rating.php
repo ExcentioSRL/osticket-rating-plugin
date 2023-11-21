@@ -118,8 +118,6 @@ class RatingPlugin extends Plugin
             $topic_id = $object->ht["topic_id"];
             $number = $object->ht["number"];
 
-
-
             $lastMsgQuery = "SELECT *
                 FROM `ost_thread_entry` 
                 WHERE `created`=\"" . $lastCreated . "\" AND `thread_id` = " . $threadId;
@@ -130,6 +128,7 @@ class RatingPlugin extends Plugin
             if (str_contains($lastMsg, '%{feedback.form}')) {
 
                 $formatForm = str_replace('"', "'", RatingPlugin::$custom_form);
+                $lastMsg = str_replace('"', "'", $lastMsg);
                 $newBody = str_replace('%{feedback.form}', $formatForm, $lastMsg);
                 $newBody = str_replace('display:none', 'display:block', $newBody);
                 $newBody = str_replace('"display :none', 'display:block', $newBody);
