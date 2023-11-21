@@ -108,7 +108,6 @@ $db_config = include(RATING_ASSET_DIR . '../db_config.php');
                     <th><a class=<?php echo "'" . getClass("rating") . "'"; ?> href="?type=<?php echo $type ?>&sort=rating&dir=<?php echo getSort("rating") ?>"> <strong>Rating</strong></a></th>
                     <th><a class=<?php echo "'" . getClass("user_id") . "'"; ?> href="?type=<?php echo $type ?>&sort=user_id&dir=<?php echo getSort("user_id") ?>"> <strong>User</strong></a></th>
                     <th><a class=<?php echo "'" . getClass("user_ip") . "'"; ?> href="?type=<?php echo $type ?>&sort=user_ip&dir=<?php echo getSort("user_ip") ?>"> <strong>User IP</strong></a></th>
-                    <!-- <th><a class=<?php echo "'" . getClass("c_experience") . "'"; ?> href="?type=<?php echo $type ?>&sort=c_experience&dir=<?php echo getSort("c_experience") ?>"> <strong>Customer Experience</strong></a></th> -->
                     <?php
                     foreach ($db_config as $dbItem) {
                         if (array_key_exists("name", $dbItem) && array_key_exists("type", $dbItem) && ($dbItem["type"] == "int" || $dbItem["type"] == "string"))
@@ -130,7 +129,6 @@ $db_config = include(RATING_ASSET_DIR . '../db_config.php');
                         <td><?php echo ($item['rating'] ? $item['rating'] : "-"); ?></td>
                         <td><?php echo $item['name']; ?></td>
                         <td><?php echo ($item['user_ip'] ? $item['user_ip'] : "-"); ?></td>
-                      <!--  <td><?php echo ($item['c_experience'] ? $item['c_experience'] : "-"); ?></td> -->
 
                         <?php
                         foreach ($db_config as $dbItem) {
