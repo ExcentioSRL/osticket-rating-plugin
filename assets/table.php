@@ -13,6 +13,8 @@ $nav = new \StaffNav($thisstaff);
 $nav->setTabActive('apps', (RATINGS_WEB_ROOT . 'settings/forms'));
 require(STAFFINC_DIR . 'header.inc.php');
 
+$db_config = include(RATING_ASSET_DIR . '../db_config.php');
+
 
 ?>
 
@@ -77,11 +79,7 @@ require(STAFFINC_DIR . 'header.inc.php');
                         <option value="wo-rating" <?php if ($type == "wo-rating") echo "selected"; ?>>Without rating</option>
                         <option value="all" <?php if ($type == "all") echo "selected"; ?>>All</option>
                     </select>
-                    <select name="type" id="type" style="width: 207px;">
-                        <option value="w-rating" <?php if ($type == "w-rating" || $type == null) echo "selected"; ?>>With rating</option>
-                        <option value="wo-rating" <?php if ($type == "wo-rating") echo "selected"; ?>>Without rating</option>
-                        <option value="all" <?php if ($type == "all") echo "selected"; ?>>All</option>
-                    </select>
+                 
                     <div style="display:flex; flex-direction: row; justify-content: center; width:100%; margin-top:3rem;">
 
                         <a href="?"><button class="red button action-button" id="clear" name="clear" value="Clear" class="attached button">Clear filter</button></a>
@@ -110,7 +108,13 @@ require(STAFFINC_DIR . 'header.inc.php');
                     <th><a class=<?php echo "'" . getClass("rating") . "'"; ?> href="?type=<?php echo $type ?>&sort=rating&dir=<?php echo getSort("rating") ?>"> <strong>Rating</strong></a></th>
                     <th><a class=<?php echo "'" . getClass("user_id") . "'"; ?> href="?type=<?php echo $type ?>&sort=user_id&dir=<?php echo getSort("user_id") ?>"> <strong>User</strong></a></th>
                     <th><a class=<?php echo "'" . getClass("user_ip") . "'"; ?> href="?type=<?php echo $type ?>&sort=user_ip&dir=<?php echo getSort("user_ip") ?>"> <strong>User IP</strong></a></th>
-                    <th><a class=<?php echo "'" . getClass("c_experience") . "'"; ?> href="?type=<?php echo $type ?>&sort=c_experience&dir=<?php echo getSort("c_experience") ?>"> <strong>Customer Experience</strong></a></th>
+                    <!-- <th><a class=<?php echo "'" . getClass("c_experience") . "'"; ?> href="?type=<?php echo $type ?>&sort=c_experience&dir=<?php echo getSort("c_experience") ?>"> <strong>Customer Experience</strong></a></th> -->
+                    <?php
+                    foreach ($db_config as $dbItem) {
+                        if (array_key_exists("name", $dbItem) && array_key_exists("type", $dbItem) && ($dbItem["type"] == "int" || $dbItem["type"] == "string"))
+                            echo ("<th><a class='" . getClass($dbItem["name"]) . "' href='?type=" . $type . "&sort=" . $dbItem["name"] . "&dir=" . getSort($dbItem["name"]) . "'> <strong>" . $dbItem["label"] . "</strong></a></th>");
+                    }
+                    ?>
                 </tr>
             </thead>
             <tbody>
@@ -126,7 +130,15 @@ require(STAFFINC_DIR . 'header.inc.php');
                         <td><?php echo ($item['rating'] ? $item['rating'] : "-"); ?></td>
                         <td><?php echo $item['name']; ?></td>
                         <td><?php echo ($item['user_ip'] ? $item['user_ip'] : "-"); ?></td>
-                        <td><?php echo ($item['c_experience'] ? $item['c_experience'] : "-"); ?></td>
+                      <!--  <td><?php echo ($item['c_experience'] ? $item['c_experience'] : "-"); ?></td> -->
+
+                        <?php
+                        foreach ($db_config as $dbItem) {
+                            if (array_key_exists("name", $dbItem) && array_key_exists("type", $dbItem) && ($dbItem["type"] == "int" || $dbItem["type"] == "string"))
+                                echo ("<td>". ($item[$dbItem["name"]] ? $item[$dbItem["name"]] : "-")."</td>");
+                        }
+                        ?>
+
                     </tr>
                 <?php
                     $index++;

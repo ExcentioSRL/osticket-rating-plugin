@@ -6,6 +6,7 @@ require_once(INCLUDE_DIR . 'class.filter.php');
 require_once(INCLUDE_DIR . 'class.canned.php');
 require_once(INCLUDE_DIR . 'class.json.php');
 require_once(INCLUDE_DIR . 'class.dynamic_forms.php');
+$db_config = include(RATING_ASSET_DIR . '../db_config.php');
 
 $resultPage = RatingPlugin::$result_url;
 $errorStaffPage = RatingPlugin::$error_staff_url;
@@ -57,10 +58,22 @@ if (isset($_GET["topic_id"]))
 else
     die("Error. Missing parameter");
 
-if (isset($_GET["c_experience"]))
-    $c_experience = $_GET["c_experience"];
-else
-    die("Error. Missing parameter");
+
+$head = "";
+$values = "";
+
+//var_dump($db_config);
+foreach ($db_config as $dbItem) {
+    if (array_key_exists("name", $dbItem) && array_key_exists("type", $dbItem) && ($dbItem["type"] == "int" || $dbItem["type"] == "string")){
+        if (isset($_GET[$dbItem["name"]])){
+            $head .= ",`". $dbItem["name"]. "`";
+            $values .= ( $dbItem["type"] == "int"?  ",". $_GET[$dbItem["name"]] : ",`" . $_GET[$dbItem["name"]] . "`" );
+        }
+        else
+            die("Error. Missing parameter: ". $dbItem["name"]);
+
+    }
+}
 
 if (isset($_COOKIE[$cookie_name]))
     $session_id =  $_COOKIE[$cookie_name];
@@ -94,7 +107,7 @@ if (count($infoRes) != 0) {
 
 
     if ($count == 0) {
-        $sql = "INSERT INTO `ost_ratings`(`rating`, `ticket_id`, `staff_id`, `user_ip`, `user_id`, `topic_id`, `number`,`c_experience`) VALUES (" . $rating . "," . $ticket . "," . $staff_id . ",'" . $user_ip . "','" . $user_id . "'," . $topic_id . ",'" . $number . "'," . $c_experience . ")";
+        $sql = "INSERT INTO `ost_ratings`(`rating`, `ticket_id`, `staff_id`, `user_ip`, `user_id`, `topic_id`, `number`".$head.") VALUES (" . $rating . "," . $ticket . "," . $staff_id . ",'" . $user_ip . "','" . $user_id . "'," . $topic_id . ",'" . $number . "'".$values ." )";
         error_log($sql, 4);
         if (db_query($sql)) {
             $success = true;

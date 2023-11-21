@@ -1,4 +1,5 @@
 <?php
+$db_config = include(RATING_ASSET_DIR . '../db_config.php');
 
 $row = 0;
 $start;
@@ -31,7 +32,6 @@ $allSql = "
     JOIN `ost_ticket` OST_TT ON OST_TT.ticket_id = OST_T.ticket_id
     ";
 
-
 $sql = 'SELECT * FROM `ost_ratings` ' . $join . ' ORDER BY timestamp DESC';
 
 $res = db_query($sql);
@@ -39,6 +39,12 @@ $items = db_assoc_array($res);
 //print_r($items);
 
 if (isset($_GET["export"])) {
+    if (isset($_GET["start"]) && $_GET["start"] != "")
+        $start = date("Y-m-d H:i:s", strtotime($_GET["start"]));
+    if (isset($_GET["end"]) && $_GET["end"] != "")
+        $end = date("Y-m-d H:i:s", strtotime($_GET["end"]));
+    $username = $_GET["username"];
+    $topic = $_GET["topic"];
 
     $sql = createQuery($start, $end, $noRatingSql, $allSql, $join);
 
@@ -47,22 +53,54 @@ if (isset($_GET["export"])) {
 
     $fileName = "Ticket_ratings_" . date('d-m-Y') . ".csv";
 
-    header('Content-Type: application/vnd.ms-excel');
-    header('Content-Disposition: attachment; filename=' . $fileName);
+    $csv = fopen($fileName, "w") or die("Unable to open file!");
 
     $heading = false;
 
     if (!empty($items)) {
         foreach ($items as $item) {
             if (!$heading) {
-                echo "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP\tCustomer Experience" . "\n";
+                $head = "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP";
+                
+                foreach ($db_config as $dbItem) {
+                    if (array_key_exists("name", $dbItem) && array_key_exists("type", $dbItem) && ($dbItem["type"] == "int" || $dbItem["type"] == "string"))
+                    $head.= "\t". $dbItem["label"];
+                }
+
+                fputcsv($csv, explode("\t", $head));
                 $heading = true;
             }
-            echo ($item['timestamp'] != "" ? date("d/m/Y H:i:s", strtotime($item['timestamp'])) : "-") . "\t" . $item["number"] . "\t" . $item["topic"] . "\t" . $item["username"] . "\t" . $item["rating"] . "\t" . $item["name"] . "\t" . $item["user_ip"] . "\t" . $item["c_experience"] . "\n";
+            $row = ($item['timestamp'] != "" ? date("d/m/Y H:i:s", strtotime($item['timestamp'])) : "-") . "\t" . $item["number"] . "\t" . $item["topic"] . "\t" . $item["username"] . "\t" . $item["rating"] . "\t" . $item["name"] . "\t" . $item["user_ip"];
+            
+            foreach ($db_config as $dbItem) {
+                if (array_key_exists("name", $dbItem) && array_key_exists("type", $dbItem) && ($dbItem["type"] == "int" || $dbItem["type"] == "string"))
+                    $row .= "\t" . ($item[$dbItem["name"]] == "" || $item[$dbItem["name"]] == 0 ? "-" : $item[$dbItem["name"]]);
+            }
+
+            fputcsv($csv,explode("\t", $row));
         }
     } else {
-        echo "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP\tCustomer Experience" . "\n";
+        $head = "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP";
+
+        foreach ($db_config as $dbItem) {
+            if (array_key_exists("name", $dbItem) && array_key_exists("type", $dbItem) && ($dbItem["type"] == "int" || $dbItem["type"] == "string"))
+            $head .= "\t" . $dbItem["label"];
+        }
+
+        fputcsv($csv, explode("\t", $head ));
     }
+
+
+    fclose($csv);
+
+    header('Content-Description: File Transfer');
+    header('Content-Disposition: attachment; filename=' . basename($fileName));
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . filesize($fileName));
+    header('Content-Type: application/vnd.ms-excel');
+    readfile($fileName);
     exit();
 }
 

@@ -139,10 +139,6 @@ class RatingPlugin extends Plugin
                 $newBody = str_replace('%{ticket.topic}', $topic_id, $newBody);
                 $newBody = str_replace('%{ticket.staff}', $staff_id, $newBody);
 
-
-
-
-
                 $query = "UPDATE `ost_thread_entry` 
                 SET `body` = \"" . $newBody . "\"
                 WHERE `created`=\"" . $lastCreated . "\" AND `thread_id` = " . $threadId;
@@ -259,24 +255,42 @@ function createDBTables()
             `timestamp` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `user_id` varchar(16) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
             `user_ip` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
-            `number` varchar(20) DEFAULT NULL,
-            `c_experience` int(1) NOT NULL DEFAULT '0'
+            `number` varchar(20) DEFAULT NULL
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 
     if (!db_query($query))
         return false;
-    else
+    else{
+        updateDBTable(); // da testare
         return true;
+    }
 }
 
 function updateDBTable()
 {
-    $query = "ALTER TABLE `ost_ratings` ADD `c_experience` int(1) NOT NULL DEFAULT '0'";
 
-    if (!db_query($query))
-        return false;
-    else
+    $config = include 'db_config.php';
+
+    if (json_encode($config) != "false") {
+
+        $res = true;
+        $int_config = " int(1) NOT NULL DEFAULT '0'";
+        $string_config = "  varchar(20) COLLATE utf8_unicode_ci NOT NULL";
+        foreach ($config as $dbItem) {
+
+            if ( array_key_exists("name",$dbItem) && array_key_exists("type", $dbItem) && ( $dbItem["type"] == "int" || $dbItem["type"] == "string") ){
+                $query = "ALTER TABLE `ost_ratings` ADD `". $dbItem["name"]."`".($dbItem["type"] == "string" ? $string_config : $int_config) ;
+                $res = $res && db_query($query);
+            } 
+            else {
+                $res = false;
+            }
+        }
+        return $res;
+    } else {
         return true;
+    }
+
 }
 
 
