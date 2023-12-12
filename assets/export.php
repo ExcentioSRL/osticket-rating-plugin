@@ -13,9 +13,6 @@ $join = "OST_R
         JOIN `ost_staff` OST_S ON OST_R.staff_id = OST_S.staff_id
         JOIN `ost_help_topic` OST_HT ON OST_R.topic_id = OST_HT.topic_id";
 
-//$referralRating = "(SELECT GROUP_CONCAT(`username` SEPARATOR ','  ) FROM `ost_thread` OST_TR JOIN `ost_thread_referral` OST_THR ON OST_THR.thread_id = OST_TR.id JOIN `ost_staff` OST_S ON OST_S.staff_id = OST_THR.object_id WHERE OST_TR.object_id =  OST_R.ticket_id) As `referrals`";
-//$referral =       "(SELECT GROUP_CONCAT(`username` SEPARATOR ','  ) FROM `ost_thread` OST_TR JOIN `ost_thread_referral` OST_THR ON OST_THR.thread_id = OST_TR.id JOIN `ost_staff` OST_S ON OST_S.staff_id = OST_THR.object_id WHERE OST_TR.object_id =  OST_T.ticket_id) As `referrals`";
-
 $referralRating =
 "(
 SELECT GROUP_CONCAT(`username` SEPARATOR ',' ) 
@@ -86,34 +83,9 @@ $allSql = "
 
 $sql = "SELECT `timestamp`,`number`,`topic`,`username`,`rating`,`user_id`,`user_ip`, ". $referralRating." FROM `ost_ratings` ".$join." ORDER BY timestamp DESC";
 
-/*SELECT `timestamp`,`number`,`topic`,`username`,`rating`,`user_id`,`user_ip`, 
-(SELECT GROUP_CONCAT(username SEPARATOR ',' )
-FROM 
-( SELECT username FROM `ost_thread` OST_TR 
-JOIN `ost_thread_referral` OST_THR ON OST_THR.thread_id = OST_TR.id 
-JOIN `ost_staff` OST_S ON OST_S.staff_id = OST_THR.object_id 
-WHERE OST_TR.object_id = '3' AND OST_THR.object_type='S' 
-UNION 
-SELECT `name` as username FROM `ost_thread` OST_TR 
-JOIN `ost_thread_referral` OST_THR ON OST_THR.thread_id = OST_TR.id 
-JOIN `ost_department` OST_D ON OST_D.id = OST_THR.object_id 
-WHERE OST_TR.object_id = '3' AND OST_THR.object_type='D' 
-UNION 
-SELECT `name` as username FROM `ost_thread` OST_TR 
-JOIN `ost_thread_referral` OST_THR ON OST_THR.thread_id = OST_TR.id 
-JOIN `ost_team` OST_TEAM ON OST_TEAM.team_id = OST_THR.object_id 
-WHERE OST_TR.object_id = '3' AND OST_THR.object_type='E' 
-) AS r )As referrals
-FROM `ost_ratings` OST_R 
-JOIN `ost_user` OST_U ON OST_R.user_id = OST_U.id 
-JOIN `ost_staff` OST_S ON OST_R.staff_id = OST_S.staff_id 
-JOIN `ost_help_topic` OST_HT ON OST_R.topic_id = OST_HT.topic_id 
-ORDER BY timestamp DESC */
-
 
 $res = db_query($sql);
 $items = db_assoc_array($res);
-//print_r($items);
 
 if (isset($_GET["export"])) {
     if (isset($_GET["start"]) && $_GET["start"] != "")
