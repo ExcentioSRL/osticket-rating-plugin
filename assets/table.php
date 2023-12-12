@@ -63,8 +63,8 @@ require(STAFFINC_DIR . 'header.inc.php');
 
                             <div>&nbsp;</div>
                             <div>&nbsp;</div>
-                            
-                            <div >
+
+                            <div>
                                 <label for="topic">Topic:</label>
                                 <input type="text" id="topic" name="topic" value="<?php echo $topic; ?>">
                             </div>
@@ -72,17 +72,17 @@ require(STAFFINC_DIR . 'header.inc.php');
                     </div>
                     </br>
                     <label for="type">Type: </label>
-                        <select name="type" id="type" style="width: 207px;">
-                            <option value="w-rating" <?php if($type=="w-rating" || $type == null) echo "selected"; ?> >With rating</option>
-                            <option value="wo-rating" <?php if($type=="wo-rating") echo "selected"; ?> >Without rating</option>
-                            <option value="all" <?php if($type=="all") echo "selected"; ?> >All</option>
-                        </select>
+                    <select name="type" id="type" style="width: 207px;">
+                        <option value="w-rating" <?php if ($type == "w-rating" || $type == null) echo "selected"; ?>>With rating</option>
+                        <option value="wo-rating" <?php if ($type == "wo-rating") echo "selected"; ?>>Without rating</option>
+                        <option value="all" <?php if ($type == "all") echo "selected"; ?>>All</option>
+                    </select>
                     <div style="display:flex; flex-direction: row; justify-content: center; width:100%; margin-top:3rem;">
 
                         <a href="?"><button class="red button action-button" id="clear" name="clear" value="Clear" class="attached button">Clear filter</button></a>
                         <button class="red button action-button muted" type="submit" id="filter" name="filter" value="Filter" class="attached button"><i class="fa fa-filter" aria-hidden="true"></i> Filter</button>
                         <button class="green button action-button muted" type="submit" id="export" name="export" value="Export to csv" class="attached button"> Export to csv</button>
-                        
+
                     </div>
                 </form>
             </div>
@@ -105,6 +105,7 @@ require(STAFFINC_DIR . 'header.inc.php');
                     <th><a class=<?php echo "'" . getClass("rating") . "'"; ?> href="?type=<?php echo $type ?>&sort=rating&dir=<?php echo getSort("rating") ?>"> <strong>Rating</strong></a></th>
                     <th><a class=<?php echo "'" . getClass("user_id") . "'"; ?> href="?type=<?php echo $type ?>&sort=user_id&dir=<?php echo getSort("user_id") ?>"> <strong>User</strong></a></th>
                     <th><a class=<?php echo "'" . getClass("user_ip") . "'"; ?> href="?type=<?php echo $type ?>&sort=user_ip&dir=<?php echo getSort("user_ip") ?>"> <strong>User IP</strong></a></th>
+                    <th><a> <strong>Referrals</strong></a></th>
                 </tr>
             </thead>
             <tbody>
@@ -113,13 +114,14 @@ require(STAFFINC_DIR . 'header.inc.php');
                 foreach ($items as $item) { ?>
                     <tr>
                         <td><strong><?php echo $index; ?></strong></td>
-                        <td><strong><?php echo( date("d/m/Y H:i:s", strtotime($item['timestamp'])) != "01/01/1970 00:00:00" ? date("d/m/Y H:i:s", strtotime($item['timestamp'])) : "-" ); ?></strong></td>
+                        <td><strong><?php echo (date("d/m/Y H:i:s", strtotime($item['timestamp'])) != "01/01/1970 00:00:00" ? date("d/m/Y H:i:s", strtotime($item['timestamp'])) : "-"); ?></strong></td>
                         <td><?php echo $item['number']; ?></td>
                         <td><?php echo $item['topic']; ?></td>
-                        <td><?php echo $item['username'];?></td>
-                        <td><?php echo ( $item['rating']? $item['rating']: "-" ); ?></td>
+                        <td><?php echo $item['username']; ?></td>
+                        <td><?php echo ($item['rating'] ? $item['rating'] : "-"); ?></td>
                         <td><?php echo $item['name']; ?></td>
-                        <td><?php echo ( $item['user_ip']? $item['user_ip'] : "-" ); ?></td>
+                        <td><?php echo ($item['user_ip'] ? $item['user_ip'] : "-"); ?></td>
+                        <td><?php echo ($item['referrals'] || $item['referrals_dept'] ||$item['referrals_team'] ? formatReferrals($item['referrals'], $item['referrals_dept'], $item['referrals_team'])   : "-"); ?></td>
                     </tr>
                 <?php
                     $index++;

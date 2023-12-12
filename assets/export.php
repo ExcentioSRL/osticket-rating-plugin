@@ -13,8 +13,59 @@ $join = "OST_R
         JOIN `ost_staff` OST_S ON OST_R.staff_id = OST_S.staff_id
         JOIN `ost_help_topic` OST_HT ON OST_R.topic_id = OST_HT.topic_id";
 
+//$referralRating = "(SELECT GROUP_CONCAT(`username` SEPARATOR ','  ) FROM `ost_thread` OST_TR JOIN `ost_thread_referral` OST_THR ON OST_THR.thread_id = OST_TR.id JOIN `ost_staff` OST_S ON OST_S.staff_id = OST_THR.object_id WHERE OST_TR.object_id =  OST_R.ticket_id) As `referrals`";
+//$referral =       "(SELECT GROUP_CONCAT(`username` SEPARATOR ','  ) FROM `ost_thread` OST_TR JOIN `ost_thread_referral` OST_THR ON OST_THR.thread_id = OST_TR.id JOIN `ost_staff` OST_S ON OST_S.staff_id = OST_THR.object_id WHERE OST_TR.object_id =  OST_T.ticket_id) As `referrals`";
+
+$referralRating =
+"(
+SELECT GROUP_CONCAT(`username` SEPARATOR ',' ) 
+FROM `ost_thread` OST_TR JOIN `ost_thread_referral` 
+OST_THR ON OST_THR.thread_id = OST_TR.id 
+JOIN `ost_staff` OST_S ON OST_S.staff_id = OST_THR.object_id
+WHERE OST_TR.object_id = OST_R.ticket_id AND OST_THR.object_type='S'
+) As `referrals` ,
+(
+SELECT GROUP_CONCAT(`name` SEPARATOR ',' ) 
+FROM `ost_thread` OST_TR JOIN `ost_thread_referral` 
+OST_THR ON OST_THR.thread_id = OST_TR.id 
+JOIN `ost_department` OST_D ON OST_D.id = OST_THR.object_id 
+WHERE OST_TR.object_id = OST_R.ticket_id AND OST_THR.object_type='D'
+) As `referrals_dept` ,
+(
+SELECT GROUP_CONCAT(`name` SEPARATOR ',' ) 
+FROM `ost_thread` OST_TR JOIN `ost_thread_referral` 
+OST_THR ON OST_THR.thread_id = OST_TR.id 
+JOIN `ost_team` OST_TEAM ON OST_TEAM.team_id = OST_THR.object_id 
+WHERE OST_TR.object_id = OST_R.ticket_id AND OST_THR.object_type='E'
+) As `referrals_team` 
+";
+
+$referral = "(
+SELECT GROUP_CONCAT(`username` SEPARATOR ',' ) 
+FROM `ost_thread` OST_TR JOIN `ost_thread_referral` 
+OST_THR ON OST_THR.thread_id = OST_TR.id 
+JOIN `ost_staff` OST_S ON OST_S.staff_id = OST_THR.object_id
+WHERE OST_TR.object_id = OST_T.ticket_id AND OST_THR.object_type='S'
+) As `referrals` ,
+(
+SELECT GROUP_CONCAT(`name` SEPARATOR ',' ) 
+FROM `ost_thread` OST_TR JOIN `ost_thread_referral` 
+OST_THR ON OST_THR.thread_id = OST_TR.id 
+JOIN `ost_department` OST_D ON OST_D.id = OST_THR.object_id 
+WHERE OST_TR.object_id = OST_T.ticket_id AND OST_THR.object_type='D'
+) As `referrals_dept` ,
+(
+SELECT GROUP_CONCAT(`name` SEPARATOR ',' ) 
+FROM `ost_thread` OST_TR JOIN `ost_thread_referral` 
+OST_THR ON OST_THR.thread_id = OST_TR.id 
+JOIN `ost_team` OST_TEAM ON OST_TEAM.team_id = OST_THR.object_id 
+WHERE OST_TR.object_id = OST_T.ticket_id AND OST_THR.object_type='E'
+) As `referrals_team` 
+";
+
+
 $noRatingSql = "
-    SELECT * FROM `ost_ticket` OST_T
+    SELECT * , " . $referral . " FROM `ost_ticket` OST_T
     JOIN `ost_user` OST_U ON OST_T.user_id = OST_U.id
     JOIN `ost_staff` OST_S ON OST_T.staff_id = OST_S.staff_id
     JOIN `ost_help_topic` OST_HT ON OST_T.topic_id = OST_HT.topic_id
@@ -23,7 +74,7 @@ $noRatingSql = "
     WHERE OST_R.ticket_id IS NULL ";
 
 $allSql = "
-    SELECT * FROM `ost_ticket` OST_T
+    SELECT * , " . $referral . " FROM `ost_ticket` OST_T
     JOIN `ost_user` OST_U ON OST_T.user_id = OST_U.id
     JOIN `ost_staff` OST_S ON OST_T.staff_id = OST_S.staff_id
     JOIN `ost_help_topic` OST_HT ON OST_T.topic_id = OST_HT.topic_id
@@ -32,7 +83,33 @@ $allSql = "
     ";
 
 
-$sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY timestamp DESC';
+
+$sql = "SELECT `timestamp`,`number`,`topic`,`username`,`rating`,`user_id`,`user_ip`, ". $referralRating." FROM `ost_ratings` ".$join." ORDER BY timestamp DESC";
+
+/*SELECT `timestamp`,`number`,`topic`,`username`,`rating`,`user_id`,`user_ip`, 
+(SELECT GROUP_CONCAT(username SEPARATOR ',' )
+FROM 
+( SELECT username FROM `ost_thread` OST_TR 
+JOIN `ost_thread_referral` OST_THR ON OST_THR.thread_id = OST_TR.id 
+JOIN `ost_staff` OST_S ON OST_S.staff_id = OST_THR.object_id 
+WHERE OST_TR.object_id = '3' AND OST_THR.object_type='S' 
+UNION 
+SELECT `name` as username FROM `ost_thread` OST_TR 
+JOIN `ost_thread_referral` OST_THR ON OST_THR.thread_id = OST_TR.id 
+JOIN `ost_department` OST_D ON OST_D.id = OST_THR.object_id 
+WHERE OST_TR.object_id = '3' AND OST_THR.object_type='D' 
+UNION 
+SELECT `name` as username FROM `ost_thread` OST_TR 
+JOIN `ost_thread_referral` OST_THR ON OST_THR.thread_id = OST_TR.id 
+JOIN `ost_team` OST_TEAM ON OST_TEAM.team_id = OST_THR.object_id 
+WHERE OST_TR.object_id = '3' AND OST_THR.object_type='E' 
+) AS r )As referrals
+FROM `ost_ratings` OST_R 
+JOIN `ost_user` OST_U ON OST_R.user_id = OST_U.id 
+JOIN `ost_staff` OST_S ON OST_R.staff_id = OST_S.staff_id 
+JOIN `ost_help_topic` OST_HT ON OST_R.topic_id = OST_HT.topic_id 
+ORDER BY timestamp DESC */
+
 
 $res = db_query($sql);
 $items = db_assoc_array($res);
@@ -46,8 +123,8 @@ if (isset($_GET["export"])) {
     $username = $_GET["username"];
     $topic = $_GET["topic"];
 
-    $sql = createQuery($start, $end, $noRatingSql, $allSql, $join);
-
+    $sql = createQuery($start, $end, $noRatingSql, $allSql,$join, $referralRating, $referral);
+    
     $res = db_query($sql);
     $items = db_assoc_array($res);
 
@@ -59,14 +136,14 @@ if (isset($_GET["export"])) {
     if (!empty($items)) {
         foreach ($items as $item) {
             if (!$heading) {
-                fputcsv($csv,explode("\t", "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP" . "\n"));
+                fputcsv($csv,explode("\t", "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP\tReferrals" . "\n"));
                 $heading = true;
             }
-            $tmpRow = ($item['timestamp'] != "" ? date("d/m/Y H:i:s", strtotime($item['timestamp'])) : "-" ). "\t" . $item["number"] . "\t" . $item["topic"] . "\t" . $item["username"] . "\t" . $item["rating"] ."\t". $item["name"] . "\t" . $item["user_ip"] . "\n";
+            $tmpRow = ($item['timestamp'] != "" ? date("d/m/Y H:i:s", strtotime($item['timestamp'])) : "-" ). "\t" . $item["number"] . "\t" . $item["topic"] . "\t" . $item["username"] . "\t" . $item["rating"] ."\t". $item["name"] . "\t" . $item["user_ip"] . "\t". formatReferrals($item['referrals'], $item['referrals_dept'], $item['referrals_team'])."\n";
             fputcsv($csv, explode("\t", $tmpRow));
         }
     } else {
-        fputcsv($csv,explode("\t", "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP" . "\n"));
+        fputcsv($csv,explode("\t", "Date\tTicket\tTopic\tOperator\tRating\tUser\tUser IP\tReferrals" . "\n"));
     }
     fclose($csv);
 
@@ -89,8 +166,8 @@ if (isset($_GET["filter"])) {
     $username = $_GET["username"];
     $topic = $_GET["topic"];
 
-    $sql = createQuery($start, $end, $noRatingSql, $allSql, $join);
-
+    $sql = createQuery($start, $end, $noRatingSql, $allSql, $join, $referralRating, $referral);
+    
     $res = db_query($sql);
     $items = db_assoc_array($res);
 }
@@ -121,6 +198,21 @@ if (isset($_GET["sort"])) {
     $res = db_query($sql);
     $items = db_assoc_array($res);
    
+}
+
+function formatReferrals($user,$dept,$team){
+    $res = "";
+    if($user)
+        $res .= $user.",";
+    if($dept)
+        $res .= $dept.",";
+    if($team)
+        $res .= $team.",";
+
+    $res = rtrim($res, ',');
+
+    return $res;
+
 }
 
 
@@ -154,12 +246,12 @@ function getSort($sort)
 }
 
 
-function createQuery($start, $end, $noRatingSql, $allSql, $join){
+function createQuery($start, $end, $noRatingSql, $allSql, $join, $referralRating, $referral){
     $first = true;
     
     if(trim($_GET["username"]) == "" && trim($_GET["topic"]) == "" && $start == null && $end == null){
         if($_GET["type"] == "w-rating")
-            $sql = 'SELECT * FROM `ost_ratings` '.$join.' ORDER BY timestamp DESC';
+            $sql = "SELECT * , ". $referralRating." FROM `ost_ratings` ".$join." ORDER BY timestamp DESC";
         else if($_GET["type"] == "wo-rating")
             $sql = $noRatingSql;
         else if($_GET["type"] == "all")
@@ -170,7 +262,7 @@ function createQuery($start, $end, $noRatingSql, $allSql, $join){
         if($_GET["type"] == "wo-rating")
             $sql = $noRatingSql. " AND ";
         else if($_GET["type"] == "w-rating")
-            $sql = 'SELECT * FROM `ost_ratings` '.$join.' WHERE ';
+            $sql = "SELECT * , ". $referralRating." FROM `ost_ratings` ".$join." WHERE ";
         else if($_GET["type"] == "all")
             $sql = $allSql." WHERE ";
 
