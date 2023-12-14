@@ -4,7 +4,6 @@
  * Rating plugin
  * 
  */
-
 require_once INCLUDE_DIR . 'class.plugin.php';
 require_once INCLUDE_DIR . 'class.forms.php';
 require_once INCLUDE_DIR . 'class.ajax.php';
@@ -35,7 +34,7 @@ spl_autoload_register(array(
 
 class RatingPlugin extends Plugin
 {
-
+    
     var $config_class = 'RatingPluginConfig';
 
     static $result_url;
@@ -89,6 +88,7 @@ class RatingPlugin extends Plugin
             'RatingPlugin',
             'callbackDispatch'
         ));
+
         Signal::connect('object.created', array(
             'RatingPlugin',
             'modifyResponse'
@@ -118,8 +118,6 @@ class RatingPlugin extends Plugin
             $topic_id = $object->ht["topic_id"];
             $number = $object->ht["number"];
 
-
-
             $lastMsgQuery = "SELECT *
                 FROM `ost_thread_entry` 
                 WHERE `created`=\"" . $lastCreated . "\" AND `thread_id` = " . $threadId;
@@ -130,17 +128,16 @@ class RatingPlugin extends Plugin
             if (str_contains($lastMsg, '%{feedback.form}')) {
 
                 $formatForm = str_replace('"', "'", RatingPlugin::$custom_form);
+                $lastMsg = str_replace('"', "'",$lastMsg);
                 $newBody = str_replace('%{feedback.form}', $formatForm, $lastMsg);
-                $newBody = str_replace('display:none', 'display:block', $newBody);
+                $newBody = str_replace('display:none', 'display:block',$newBody);
                 $newBody = str_replace('"display :none', 'display:block', $newBody);
+
 
                 $newBody = str_replace('%{ticket.id}', $ticketId, $newBody);
                 $newBody = str_replace('%{ticket.number}', $number, $newBody);
                 $newBody = str_replace('%{ticket.topic}', $topic_id, $newBody);
                 $newBody = str_replace('%{ticket.staff}', $staff_id, $newBody);
-
-
-
 
 
                 $query = "UPDATE `ost_thread_entry` 
