@@ -4,7 +4,6 @@
  * Rating plugin
  * 
  */
-
 require_once INCLUDE_DIR . 'class.plugin.php';
 require_once INCLUDE_DIR . 'class.forms.php';
 require_once INCLUDE_DIR . 'class.ajax.php';
@@ -35,7 +34,7 @@ spl_autoload_register(array(
 
 class RatingPlugin extends Plugin
 {
-
+    
     var $config_class = 'RatingPluginConfig';
 
     static $result_url;
@@ -43,7 +42,6 @@ class RatingPlugin extends Plugin
     static $error_no_user_url;
     static $generic_error_url;
     static $custom_form;
-
 
     public static function autoload($className)
     {
@@ -76,8 +74,8 @@ class RatingPlugin extends Plugin
         if ($config->get('custom_form'))
             RatingPlugin::$custom_form = $config->get('custom_form');
 
-        if ($this->firstRun()) {
-            if (!$this->configureFirstRun()) {
+        if($this->firstRun()) {
+            if(!$this->configureFirstRun()) {
                 return false;
             }
         } else {
@@ -89,6 +87,7 @@ class RatingPlugin extends Plugin
             'RatingPlugin',
             'callbackDispatch'
         ));
+
         Signal::connect('object.created', array(
             'RatingPlugin',
             'modifyResponse'
