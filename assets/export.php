@@ -81,7 +81,7 @@ $allSql = "
 
 
 
-$sql = "SELECT `timestamp`,`number`,`topic`,`username`,`rating`,`user_id`,`user_ip`, ". $referralRating." FROM `ost_ratings` ".$join." ORDER BY timestamp DESC";
+$sql = "SELECT `timestamp`,`number`,`topic`,`username`,`rating`,`user_id`,`user_ip`,`name`, ". $referralRating." FROM `ost_ratings` ".$join." ORDER BY timestamp DESC";
 
 
 $res = db_query($sql);
