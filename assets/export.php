@@ -153,7 +153,7 @@ if (isset($_GET["sort"])) {
         $sort = "OST_TT.user_id";
 
     if($_GET["type"] == "w-rating")
-        $sql = 'SELECT * FROM `ost_ratings` '.$join;
+        $sql = "SELECT `timestamp`,`number`,`topic`,`username`,`rating`,`user_id`,`user_ip`,`name`, ". $referralRating." FROM `ost_ratings` ".$join;
     else if($_GET["type"] == "wo-rating")
         $sql = $noRatingSql;
     else if($_GET["type"] == "all")
